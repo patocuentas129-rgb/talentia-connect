@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>TalentIA Connect | Futurista Elegante (Oscuro Lila)</title>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  /* --------------------------
+     FUTURISTA ELEGANTE - OSCURO LILA
+     Background: static purple -> lilac gradient
+     -------------------------- */
+  :root{
+    --bg: linear-gradient(135deg, #2A1E35 0%, #33243f 50%, #412a53 100%);
+    --panel-bg: rgba(28,20,35,0.70);
+    --card-bg: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+    --soft-text: #F5F5F7;
+    --muted: rgba(245,245,247,0.65);
+    --glass-border: rgba(255,255,255,0.04);
+    --accent1: #A78BFA;   /* primary lilac */
+    --accent2: #C4B5FD;   /* secondary */
+    --accent3: #2B1B3D;   /* darker accent for cards */
+    --btn-text: #0b0b12;
+    --card-shadow: 0 10px 30px rgba(6,6,10,0.55);
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    color-scheme: dark;
+  }
+
+  html,body{
+    height:100%;margin:0;
+    background:var(--bg);
+    color:var(--soft-text);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+
+  .wrap{display:flex;height:100vh;padding:20px;box-sizing:border-box;gap:18px;}
+  .view{display:none;width:100%;align-items:center;justify-content:center;}
+  #landing-view{display:flex;}
+
+  /* Card base (semi-transparent panels) */
+  .card{
+    background: var(--panel-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(6px) saturate(120%);
+    padding:16px;border-radius:12px;color:var(--soft-text);
+    box-shadow: var(--card-shadow);
+  }
+  .cta{
+    padding:10px 14px;border-radius:999px;border:none;
+    background: linear-gradient(90deg, var(--accent2), var(--accent1));
+    color: var(--btn-text); font-weight:700; cursor:pointer;
+    box-shadow: 0 8px 30px rgba(167,130,255,0.08);
+  }
+
+  /* Logo text (futuristic glow) */
+  .logo-text{
+    font-weight:800; font-size:28px; letter-spacing:0.6px;
+    color:var(--accent1);
+    text-shadow:
+      0 1px 0 rgba(255,255,255,0.02),
+      0 6px 24px rgba(167,130,255,0.10),
+      0 0 18px rgba(167,130,255,0.08);
+  }
+  .logo-sub{ color:var(--muted); font-size:13px; margin-top:6px; }
+
+  /* Login */
+  .login-container{width:460px;padding:22px;border-radius:12px; display:flex;flex-direction:column;gap:10px;}
+  .input{
+    width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);
+    background: rgba(255,255,255,0.02); color:var(--soft-text); box-sizing:border-box;margin-top:6px;
+  }
+  .login-submit{margin-top:12px;width:100%;padding:12px;border-radius:10px;border:none;background:linear-gradient(90deg,var(--accent1),var(--accent2));color:var(--btn-text);font-weight:700;cursor:pointer;box-shadow:0 10px 30px rgba(167,130,255,0.12);}
+
+  /* Dashboard layout */
+  .dashboard-layout{display:flex;gap:14px;height:calc(100vh - 40px);width:100%;}
+  aside.sidebar{
+    width:280px;padding:18px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border:1px solid rgba(255,255,255,0.02);
+  }
+  .brand{display:flex;gap:12px;align-items:center;margin-bottom:10px}
+  .brand .logo-badge{width:48px;height:48px;border-radius:10px;background:linear-gradient(90deg,var(--accent1),var(--accent2));box-shadow:0 8px 30px rgba(167,130,255,0.08);}
+
+  .nav{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+  .nav button{
+    background:transparent;border:1px solid transparent;padding:12px;border-radius:10px;color:var(--muted);
+    text-align:left;cursor:pointer;font-weight:700;font-size:14px;
+  }
+  .nav button.active{
+    background: linear-gradient(90deg, rgba(167,130,255,0.08), rgba(196,181,253,0.04));
+    border:1px solid rgba(255,255,255,0.02); color:var(--soft-text);
+    box-shadow: 0 8px 24px rgba(41,24,61,0.20);
+  }
+  .logout{margin-top:auto;padding:10px;border-radius:10px;border:1px dashed rgba(255,255,255,0.03);cursor:pointer;color:var(--accent1);background:transparent;font-weight:700}
+
+  main.main{flex:1;padding:18px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));border:1px solid rgba(255,255,255,0.02);overflow:auto;}
+  .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .grid{display:grid;grid-template-columns:380px 1fr;gap:14px;align-items:start}
+
+  .modules-list{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+  .module-item{
+    display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.01));
+    cursor:pointer;border:1px solid rgba(255,255,255,0.02);
+  }
+
+  .question{padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,0.02);margin-bottom:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00))}
+  .q-actions{display:flex;gap:8px;margin-top:10px}
+  .btn{padding:8px 12px;border-radius:10px;border:none;background:linear-gradient(90deg,var(--accent1),var(--accent2));color:var(--btn-text);font-weight:700;cursor:pointer;box-shadow:0 8px 24px rgba(167,130,255,0.06)}
+
+  textarea,input[type="text"]{width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);background:rgba(255,255,255,0.02);color:var(--soft-text)}
+  label{color:var(--muted);display:block;margin-top:8px}
+
+  .small-muted{color:var(--muted);font-size:13px}
+  .msg{max-width:78%;padding:10px 12px;border-radius:12px;margin-bottom:10px;line-height:1.35;}
+  .msg.user{margin-left:auto;background:linear-gradient(90deg,var(--accent2),var(--accent1));color:var(--btn-text);box-shadow:0 8px 20px rgba(167,130,255,0.05)}
+  .msg.ai{margin-right:auto;background:rgba(255,255,255,0.02);color:var(--soft-text);border:1px solid rgba(255,255,255,0.02)}
+
+  /* Floating settings button bottom-right */
+  .settings-fab{
+    position: fixed; right: 22px; bottom: 22px; width:56px; height:56px; border-radius:999px;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    box-shadow: 0 14px 40px rgba(18,8,36,0.55);
+    background: linear-gradient(90deg,var(--accent1),var(--accent2)); color:var(--btn-text); border: none; z-index:1200;
+    transition: transform .12s ease;
+  }
+  .settings-fab:active{ transform: scale(.98); }
+
+  /* Modal (session-scoped) */
+  .modal-backdrop{ position:fixed; inset:0; background: rgba(10,6,16,0.6); display:none; align-items:center; justify-content:center; z-index:1300; }
+  .modal{ width:460px; max-width:94%; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:14px; padding:18px; border:1px solid rgba(255,255,255,0.03); box-shadow: 0 30px 80px rgba(6,6,10,0.6); transform: translateY(12px); opacity:0; transition: all .18s ease; color:var(--soft-text); }
+  .modal.show{ transform: translateY(0); opacity:1; }
+  .modal h3{ margin:0 0 10px 0; color:var(--accent1); font-size:18px; }
+
+  .option-row{ display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px dashed rgba(255,255,255,0.02); }
+  .color-swatch{ width:36px; height:22px; border-radius:8px; border:1px solid rgba(255,255,255,0.02); display:inline-block; margin-left:8px; }
+
+  @media (max-width:980px){ .grid{grid-template-columns:1fr} aside.sidebar{width:220px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- LANDING -->
+  <div id="landing-view" class="view">
+    <div style="width:100%;max-width:1200px;display:flex;gap:18px;align-items:center;justify-content:space-between">
+      <div class="card" style="flex:1;padding:28px;border-radius:14px">
+        <div class="logo-text">TalentIA Connect</div>
+        <div class="logo-sub small-muted">Plataforma para RRHH: ética, modelos y gobernanza de IA — Futurista elegante</div>
+        <div style="margin-top:18px">
+          <button class="cta" onclick="navigate('login-view')">Comenzar — Iniciar Sesión</button>
+        </div>
+      </div>
+
+      <div style="width:480px">
+        <div class="login-container card">
+          <div style="display:flex;gap:12px;align-items:center">
+            <div class="logo-badge" aria-hidden="true"></div>
+            <div>
+              <div style="font-weight:800;color:var(--accent1);font-size:20px">TalentIA Connect</div>
+              <div class="small-muted">Demo rápida · Inicia sesión para probar</div>
+            </div>
+          </div>
+
+          <form id="loginForm" style="margin-top:12px;display:flex;flex-direction:column">
+            <input id="user" class="input" placeholder="tu.email@empresa.cl" type="email" required />
+            <input id="pass" class="input" placeholder="Contraseña" type="password" required />
+            <div style="display:flex;gap:10px;margin-top:10px">
+              <button class="login-submit btn" type="submit">Acceder</button>
+              <!-- small settings button visible on login too -->
+              <button type="button" class="btn" onclick="openSettings()" title="Configuración">⚙️</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOGIN (alternate view kept for navigation) -->
+  <div id="login-view" class="view" style="display:none;align-items:center;justify-content:center">
+    <div class="login-container card">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+        <div class="logo-text">TalentIA Connect</div>
+        <div class="logo-sub small-muted">Acceso RRHH</div>
+      </div>
+
+      <form id="loginFormAlt" style="margin-top:12px;display:flex;flex-direction:column">
+        <input id="userAlt" class="input" placeholder="tu.email@empresa.cl" type="email" required />
+        <input id="passAlt" class="input" placeholder="Contraseña" type="password" required />
+        <div style="display:flex;gap:10px;margin-top:10px">
+          <button class="login-submit btn" type="submit">Acceder</button>
+          <button type="button" class="btn" onclick="openSettings()" title="Configuración">⚙️</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard-view" class="view" style="display:none; width:100%">
+    <div class="dashboard-layout">
+      <aside class="sidebar card">
+        <div class="brand">
+          <div class="logo-badge" aria-hidden="true"></div>
+          <div>
+            <div style="font-weight:800;color:var(--accent1);font-size:18px">TalentIA</div>
+            <div class="small-muted">RRHH · IA Ética</div>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <button class="nav-btn active" data-target="dashboard-overview">Inicio / Dashboard</button>
+          <button class="nav-btn" data-target="modules-section">Módulos de Aprendizaje</button>
+          <button class="nav-btn" data-target="diagnostic-section">Diagnóstico</button>
+          <button class="nav-btn" data-target="profile-section">Mi Perfil</button>
+          <button class="nav-btn" data-target="assistant-section">Asistente IA</button>
+        </nav>
+
+        <div style="margin-top:12px;color:var(--muted)">Usuario: <strong id="display-name">demo</strong></div>
+        <button class="logout" onclick="logout()">Cerrar sesión</button>
+        <div style="margin-top:12px">
+          <button class="btn" onclick="resetAll()">Reiniciar todo (local)</button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <div class="header">
+          <div>
+            <h1 id="content-title">Dashboard</h1>
+            <div id="content-subtitle" class="small-muted">Resumen y progreso</div>
+          </div>
+          <div class="small-muted">Octubre 2025</div>
+        </div>
+
+        <section id="dashboard-overview" class="card" style="display:block">
+          <div class="grid">
+            <div>
+              <div class="card" style="padding:16px">
+                <h3 style="margin:0;color:var(--accent2)">Mi Progreso General</h3>
+                <canvas id="overallChart" width="280" height="280" style="margin-top:10px"></canvas>
+                <div id="overallText" class="small-muted" style="margin-top:8px;font-weight:700">Progreso: 0%</div>
+              </div>
+
+              <div class="card" style="margin-top:12px;padding:14px">
+                <h4 style="margin:0;color:var(--accent1)">Competencias</h4>
+                <canvas id="competenceChart" width="400" height="220" style="margin-top:8px"></canvas>
+              </div>
+            </div>
+
+            <div>
+              <div class="card" style="padding:14px">
+                <h3 style="margin:0;color:var(--accent2)">Módulos</h3>
+                <div id="modules-list" class="modules-list" style="margin-top:10px"></div>
+                <div style="display:flex;gap:10px;margin-top:12px">
+                  <button class="cta" onclick="showSection('modules-section')">Ir a Módulos</button>
+                  <button class="btn" onclick="showSection('diagnostic-section')" style="background:linear-gradient(90deg,var(--accent3),var(--accent2))">Diagnóstico</button>
+                </div>
+              </div>
+
+              <div class="card" style="margin-top:12px;padding:14px">
+                <h4 style="margin:0;color:var(--accent1)">Asistente Rápido</h4>
+                <div class="chat-window" style="margin-top:10px">
+                  <div id="mini-messages" class="messages"><div class="msg ai">Hola, pregunta algo sobre módulos o privacidad.</div></div>
+                  <div class="q-actions" style="margin-top:8px">
+                    <input id="mini-input" placeholder="¿Qué es fairness?" />
+                    <button class="btn" onclick="miniSend()">Enviar</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- MODULES -->
+        <section id="modules-section" class="card" style="display:none;padding:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <h2 style="margin:0;color:var(--accent2)">📚 Módulos Interactivos</h2>
+            <div class="small-muted">Progreso módulo activo: <strong id="active-module-progress">0%</strong></div>
+          </div>
+
+          <div style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap">
+            <button class="btn" onclick="selectModule('modulo1')">Fundamentos IA en RRHH</button>
+            <button class="btn" onclick="selectModule('modulo2')">Ética de Datos y Privacidad</button>
+            <button class="btn" onclick="selectModule('modulo3')">Modelos Predictivos y Sesgos</button>
+            <button class="btn" onclick="selectModule('modulo4')">Auditoría y Cumplimiento</button>
+          </div>
+
+          <div id="module-area" style="margin-top:14px">
+            <div id="module-header" class="card" style="display:flex;justify-content:space-between;align-items:center;padding:12px">
+              <div>
+                <h3 id="module-title" style="margin:0;color:var(--accent1)">Selecciona un módulo</h3>
+                <div id="module-desc" class="small-muted">Las preguntas aparecerán aquí al seleccionar un módulo.</div>
+              </div>
+              <div style="display:flex;gap:8px;align-items:center">
+                <div class="small-muted">Progreso: <strong id="moduleProgressText">0%</strong></div>
+                <button class="btn" onclick="resetModuleProgress(currentModule)">Reiniciar módulo</button>
+              </div>
+            </div>
+
+            <div id="questions-list" style="margin-top:12px"></div>
+          </div>
+        </section>
+
+        <!-- DIAGNOSTIC -->
+        <section id="diagnostic-section" class="card" style="display:none;padding:14px">
+          <h2 style="margin:0;color:var(--accent2)">📈 Diagnóstico de Madurez</h2>
+          <p class="small-muted">Responde para medir madurez (persistente).</p>
+          <form id="diagnostic-form" style="margin-top:12px">
+            <div>
+              <div><h4 style="margin:0">1. ¿Con qué frecuencia auditan el sesgo?</h4>
+                <label><input type="radio" name="q1" value="1" required> Nunca</label>
+                <label><input type="radio" name="q1" value="2"> Raramente</label>
+                <label><input type="radio" name="q1" value="3"> Trimestral</label>
+                <label><input type="radio" name="q1" value="4"> Mensual/Automatizado</label>
+              </div>
+              <div><h4 style="margin:0">2. Capacitación managers en ética?</h4>
+                <label><input type="radio" name="q2" value="1" required> No hay</label>
+                <label><input type="radio" name="q2" value="2"> Básica</label>
+                <label><input type="radio" name="q2" value="3"> Obligatoria</label>
+                <label><input type="radio" name="q2" value="4"> Continua</label>
+              </div>
+              <div><h4 style="margin:0">3. ¿Protocolo documentado?</h4>
+                <label><input type="radio" name="q3" value="1" required> No</label>
+                <label><input type="radio" name="q3" value="2"> En desarrollo</label>
+                <label><input type="radio" name="q3" value="3"> Sí anual</label>
+                <label><input type="radio" name="q3" value="4"> Sí, auditado trimestralmente</label>
+              </div>
+              <div><h4 style="margin:0">4. Ética en KPIs?</h4>
+                <label><input type="radio" name="q4" value="1" required> No considerada</label>
+                <label><input type="radio" name="q4" value="2"> A discutir</label>
+                <label><input type="radio" name="q4" value="3"> Mide capacitación</label>
+                <label><input type="radio" name="q4" value="4"> KPIs auditados</label>
+              </div>
+              <div><h4 style="margin:0">5. Canal de reporte?</h4>
+                <label><input type="radio" name="q5" value="1" required> No</label>
+                <label><input type="radio" name="q5" value="2"> Solo managers</label>
+                <label><input type="radio" name="q5" value="3"> Comité</label>
+                <label><input type="radio" name="q5" value="4"> Canal anónimo y auditado</label>
+              </div>
+            </div>
+            <div style="margin-top:10px">
+              <button class="btn" type="submit">Finalizar Diagnóstico</button>
+            </div>
+          </form>
+          <div id="diagnostic-results" style="display:none;margin-top:10px" class="card">
+            <h3 style="margin:0;color:var(--accent2)">Resultados</h3>
+            <div id="score-output" class="small-muted" style="margin-top:8px"></div>
+            <div style="margin-top:8px"><button class="btn" onclick="showSection('dashboard-overview')">Volver</button></div>
+          </div>
+        </section>
+
+        <!-- PROFILE -->
+        <section id="profile-section" class="card" style="display:none;padding:14px">
+          <h2 style="margin:0;color:var(--accent2)">👤 Mi Perfil</h2>
+          <div style="display:flex;gap:12px;margin-top:10px">
+            <div class="card" style="flex:1;padding:12px">
+              <p><strong>Nombre:</strong> <span id="profile-name">Colaborador Demo</span></p>
+              <p><strong>Correo:</strong> <span id="profile-email">demo@empresa.cl</span></p>
+              <p><strong>Dept:</strong> <span id="profile-dept">RRHH</span></p>
+              <p><strong>Nivel:</strong> <span id="profile-access">Profesional</span></p>
+              <div style="margin-top:10px"><button class="btn" onclick="editProfile()">Editar</button></div>
+            </div>
+            <div class="card" style="width:320px;padding:12px">
+              <h4 style="margin:0;color:var(--accent1)">Certificados</h4>
+              <p class="small-muted">Fundamentos Éticos de la IA — Octubre 2025</p>
+            </div>
+          </div>
+          <div id="profile-edit" style="display:none;margin-top:12px" class="card">
+            <label>Nombre</label><input id="edit-name" type="text" />
+            <label>Correo</label><input id="edit-email" type="text" />
+            <label>Dept</label><input id="edit-dept" type="text" />
+            <label>Nivel</label><input id="edit-access" type="text" />
+            <div style="margin-top:8px;display:flex;gap:8px"><button class="btn" onclick="saveProfile()">Guardar</button><button class="btn" onclick="cancelEdit()">Cancelar</button></div>
+          </div>
+        </section>
+
+        <!-- ASSISTANT -->
+        <section id="assistant-section" class="card" style="display:none;padding:14px">
+          <h2 style="margin:0;color:var(--accent2)">🤖 Asistente</h2>
+          <div style="display:grid;grid-template-columns:1fr 280px;gap:12px;margin-top:10px">
+            <div class="card" style="padding:12px">
+              <div id="messages" style="height:260px;overflow:auto;padding:8px" class="messages"><div class="msg ai">Hola, puedo ayudarte a navegar los módulos.</div></div>
+              <div class="q-actions" style="margin-top:8px"><input id="ai-input" placeholder="Pregunta..." /><button class="btn" onclick="sendChatMessage()">Enviar</button></div>
+            </div>
+            <div class="card" style="padding:12px">
+              <h4 style="margin:0;color:var(--accent1)">Sugerencias</h4>
+              <ul class="small-muted">
+                <li>Empieza por Fundamentos</li>
+                <li>Completa Módulo 2 para privacidad</li>
+                <li>Haz Diagnóstico cada 3 meses</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+</div>
+
+<!-- Floating settings button -->
+<button class="settings-fab" title="Configuración" onclick="openSettings()">⚙️</button>
+
+<!-- Settings modal -->
+<div id="settings-backdrop" class="modal-backdrop" onclick="closeSettings(event)">
+  <div id="settings-modal" class="modal" onclick="event.stopPropagation()">
+    <h3>Preferencias</h3>
+    <div class="option-row">
+      <div>
+        <strong>Tema</strong><div class="small-muted">Claro / Oscuro</div>
+      </div>
+      <div>
+        <select id="pref-theme">
+          <option value="light">Claro</option>
+          <option value="dark" selected>Oscuro</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="option-row">
+      <div>
+        <strong>Idioma</strong><div class="small-muted">Español / Inglés</div>
+      </div>
+      <div>
+        <select id="pref-lang">
+          <option value="es">Español</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="option-row" style="align-items:center">
+      <div>
+        <strong>Color de acento</strong><div class="small-muted">Lila / Azul / Verde</div>
+      </div>
+      <div>
+        <button class="btn" onclick="setAccent('lilac')">Lila <span class="color-swatch" style="background:#A78BFA"></span></button>
+        <button class="btn" onclick="setAccent('blue')">Azul <span class="color-swatch" style="background:#7dd3fc"></span></button>
+        <button class="btn" onclick="setAccent('green')">Verde <span class="color-swatch" style="background:#b7f5e8"></span></button>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+      <button class="btn" onclick="applyPrefs()">Aplicar</button>
+      <button class="btn" onclick="closeSettings()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================
+   Preferences in sessionStorage (session only)
+   ========================= */
+const PREFS_KEY = 'talentia_prefs_v1_session';
+const defaultPrefs = { theme: 'dark', lang: 'es', accent: 'lilac' };
+
+function loadPrefs(){
+  try {
+    const raw = sessionStorage.getItem(PREFS_KEY);
+    if(raw) return JSON.parse(raw);
+  } catch(e){}
+  sessionStorage.setItem(PREFS_KEY, JSON.stringify(defaultPrefs));
+  return {...defaultPrefs};
+}
+function savePrefs(p){ sessionStorage.setItem(PREFS_KEY, JSON.stringify(p)); }
+
+function applyPrefsToUI(prefs){
+  // Theme: light/dark switch CSS variables
+  if(prefs.theme === 'dark'){
+    document.documentElement.style.setProperty('--bg', 'linear-gradient(135deg, #2A1E35 0%, #33243f 50%, #412a53 100%)');
+    document.documentElement.style.setProperty('--panel-bg', 'rgba(28,20,35,0.70)');
+    document.documentElement.style.setProperty('--soft-text', '#F5F5F7');
+    document.documentElement.style.setProperty('--muted', 'rgba(245,245,247,0.65)');
+    document.documentElement.style.setProperty('--glass-border', 'rgba(255,255,255,0.04)');
+    document.documentElement.style.setProperty('--card-shadow', '0 10px 30px rgba(6,6,10,0.55)');
+  } else {
+    // lighter variant (still purple tinted but lighter)
+    document.documentElement.style.setProperty('--bg', 'linear-gradient(135deg,#3a2746 0%, #4b3760 50%, #5a3f6f 100%)');
+    document.documentElement.style.setProperty('--panel-bg', 'rgba(255,255,255,0.03)');
+    document.documentElement.style.setProperty('--soft-text', '#F3F1F8');
+    document.documentElement.style.setProperty('--muted', 'rgba(243,241,248,0.75)');
+    document.documentElement.style.setProperty('--glass-border', 'rgba(255,255,255,0.02)');
+    document.documentElement.style.setProperty('--card-shadow', '0 8px 24px rgba(18,10,36,0.45)');
+  }
+
+  // Accent
+  if(prefs.accent === 'lilac'){
+    document.documentElement.style.setProperty('--accent1','#A78BFA');
+    document.documentElement.style.setProperty('--accent2','#C4B5FD');
+    document.documentElement.style.setProperty('--accent3','#2B1B3D');
+  } else if(prefs.accent === 'blue'){
+    document.documentElement.style.setProperty('--accent1','#7dd3fc');
+    document.documentElement.style.setProperty('--accent2','#d5f7ff');
+    document.documentElement.style.setProperty('--accent3','#153743');
+  } else if(prefs.accent === 'green'){
+    document.documentElement.style.setProperty('--accent1','#b7f5e8');
+    document.documentElement.style.setProperty('--accent2','#e6fff6');
+    document.documentElement.style.setProperty('--accent3','#153b33');
+  }
+
+  // UI select values
+  const selTheme = document.getElementById('pref-theme');
+  const selLang = document.getElementById('pref-lang');
+  if(selTheme) selTheme.value = prefs.theme;
+  if(selLang) selLang.value = prefs.lang;
+
+  // language update (basic)
+  applyLanguage(prefs.lang);
+}
+
+/* Open/close settings modal */
+function openSettings(){
+  const sb = document.getElementById('settings-backdrop');
+  sb.style.display = 'flex';
+  setTimeout(()=> document.getElementById('settings-modal').classList.add('show'), 12);
+}
+function closeSettings(e){
+  if(e && e.target && e.target.id === 'settings-backdrop'){
+    const sb = document.getElementById('settings-backdrop');
+    document.getElementById('settings-modal').classList.remove('show');
+    setTimeout(()=> sb.style.display='none', 180);
+    return;
+  }
+  document.getElementById('settings-modal').classList.remove('show');
+  setTimeout(()=> document.getElementById('settings-backdrop').style.display='none', 180);
+}
+function setAccent(name){ const prefs = loadPrefs(); prefs.accent = name; savePrefs(prefs); applyPrefsToUI(prefs); }
+function applyPrefs(){ const prefs = loadPrefs(); prefs.theme = document.getElementById('pref-theme').value; prefs.lang = document.getElementById('pref-lang').value; savePrefs(prefs); applyPrefsToUI(prefs); closeSettings(); }
+
+/* Simple i18n dictionary (keeps basic labels) */
+const i18n = {
+  es: { title_main:"TalentIA Connect", subtitle:"Plataforma para RRHH: ética, modelos y gobernanza de IA — Futurista elegante", start:"Comenzar — Iniciar Sesión", login_btn:"Acceder" },
+  en: { title_main:"TalentIA Connect", subtitle:"Platform for HR: ethics, models and AI governance — Futuristic elegant", start:"Get started — Sign in", login_btn:"Sign in" }
+};
+function applyLanguage(lang){
+  // minimal application for main labels
+  const map = i18n[lang] || i18n['es'];
+  document.querySelectorAll('.logo-text').forEach(el => el.innerText = map.title_main);
+  document.querySelectorAll('.logo-sub').forEach(el => el.innerText = map.subtitle);
+  // login button(s)
+  document.querySelectorAll('.login-submit').forEach(b => b.innerText = map.login_btn);
+}
+
+/* =========================
+   App logic (modules, persistence, charts)
+   - appState stored in localStorage (responses persist)
+   ========================= */
+const STORAGE_KEY_APP = 'talentia_state_v1_dark';
+const defaultState = {
+  user: { name: 'Colaborador Demo', email: 'demo@empresa.cl', dept:'RRHH', access:'Profesional' },
+  moduleProgress: { modulo1:0, modulo2:0, modulo3:0, modulo4:0 },
+  competenceData: [40,35,30,25],
+  answered: { modulo1: {}, modulo2: {}, modulo3: {}, modulo4: {} }
+};
+
+function loadAppState(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_APP);
+    if(raw) return JSON.parse(raw);
+  } catch(e){}
+  localStorage.setItem(STORAGE_KEY_APP, JSON.stringify(defaultState));
+  return JSON.parse(JSON.stringify(defaultState));
+}
+function saveAppState(){ localStorage.setItem(STORAGE_KEY_APP, JSON.stringify(appState)); }
+
+let appState = loadAppState();
+
+/* Questions per module (5 each) */
+const moduleQuestions = {
+  'modulo1': [
+    {id:'m1q1', type:'mc', q:'¿Cuál es el propósito principal de usar IA en RRHH?', options:['Reemplazar personal','Apoyar decisiones humanas','Reducir salarios','Eliminar entrevistas'], correct:1, explain:'La IA debe apoyar y no reemplazar totalmente el juicio humano.'},
+    {id:'m1q2', type:'mc', q:'¿Qué es XAI (IA explicable)?', options:['IA que explica sus decisiones','IA secreta','Modelo solo para investigación','Hardware especial'], correct:0, explain:'XAI busca que modelos sean interpretables y explicables.'},
+    {id:'m1q3', type:'text', q:'Menciona una ventaja de usar IA en procesos de talento (palabra corta).', keywords:['eficiencia','velocidad','precisión','optimización','consistencia'], explain:'La IA aporta eficiencia y consistencia.'},
+    {id:'m1q4', type:'mc', q:'¿Qué cuidado es esencial al usar IA en RRHH?', options:['Usar todos los datos','Privacidad y equidad','Ignorar feedback humano','No auditar modelos'], correct:1, explain:'Privacidad y equidad son fundamentales.'},
+    {id:'m1q5', type:'text', q:'Escribe una breve frase por qué la IA no debe suplantar el juicio humano.', keywords:['ética','juicio','responsable','supervisión','humano'], explain:'La supervisión humana asegura contexto y responsabilidad.'}
+  ],
+  'modulo2': [
+    {id:'m2q1', type:'mc', q:'¿Qué significa minimización de datos?', options:['Recolectar todo','Recoger solo datos necesarios','Vender datos','Borrar todo'], correct:1, explain:'Minimización implica recopilar solo lo necesario.'},
+    {id:'m2q2', type:'text', q:'Menciona una práctica para proteger la privacidad (palabra corta).', keywords:['anonimiz','encript','cifrado','consentimiento','tokeniz'], explain:'Anonimización y cifrado protegen la privacidad.'},
+    {id:'m2q3', type:'mc', q:'ARCO son derechos de los titulares. ¿Qué incluye?', options:['Acceso, Rectificación, Cancelación, Oposición','Auditar, Revisar, Controlar, Operar','Alinear, Reforzar, Consolidar, Optimizar','Nada'], correct:0, explain:'ARCO corresponde a Acceso, Rectificación, Cancelación y Oposición.'},
+    {id:'m2q4', type:'mc', q:'¿Qué rol tiene el consentimiento?', options:['No importa','Es base legal para procesar datos','Solo para marketing','Para eliminar datos'], correct:1, explain:'El consentimiento es una base legal para varios tratamientos.'},
+    {id:'m2q5', type:'text', q:'Explica brevemente la importancia de la transparencia en IA aplicada a RRHH (palabra o frase corta).', keywords:['confianza','explic','transpar','responsab','comprens'], explain:'La transparencia genera confianza.'}
+  ],
+  'modulo3': [
+    {id:'m3q1', type:'mc', q:'¿Cuál es una fuente común de sesgo?', options:['Datos históricos no representativos','El color del monitor','Las cookies','El clima'], correct:0, explain:'Datos históricos sesgados transmiten sesgos a modelos.'},
+    {id:'m3q2', type:'text', q:'Nombra una técnica para mitigar sesgos (palabra corta).', keywords:['reponder','reweight','resampling','oversampl','undersampl','balance'], explain:'Reponderación o resampling ayudan a mitigar sesgos.'},
+    {id:'m3q3', type:'mc', q:'¿Qué es fairness en ML?', options:['Equidad en resultados','Velocidad','Tamaño del modelo','Precio del servicio'], correct:0, explain:'Fairness se refiere a equidad y justicia en resultados.'},
+    {id:'m3q4', type:'mc', q:'¿Qué debes auditar para detectar sesgos?', options:['Predicciones por grupo demográfico','Solo el código fuente','Solo la UI','El hardware'], correct:0, explain:'Analizar predicciones por subgrupos ayuda a detectar sesgos.'},
+    {id:'m3q5', type:'text', q:'¿Cómo describirías por qué los sesgos deben ser mitigados? (palabra corta)', keywords:['justicia','legal','ética','imparcialidad','igualdad'], explain:'Mitigar sesgos protege justicia y cumplimiento legal.'}
+  ],
+  'modulo4': [
+    {id:'m4q1', type:'mc', q:'¿Qué verifica una auditoría de IA?', options:['Trazabilidad, documentación y fairness','El color del logo','La velocidad de internet','Los nombres de archivos'], correct:0, explain:'Auditoría revisa trazabilidad, documentación y fairness.'},
+    {id:'m4q2', type:'text', q:'Menciona un elemento que debe registrarse para auditoría (palabra corta).', keywords:['logs','version','metadatos','registro','trazabil'], explain:'Logs y versiones son esenciales para auditoría.'},
+    {id:'m4q3', type:'mc', q:'¿Con qué frecuencia es recomendable auditar modelos en entornos críticos?', options:['Mensual o trimestral','Nunca','Solo al iniciar','Cada década'], correct:0, explain:'Auditorías periódicas (mensual/trimestral) son recomendadas.'},
+    {id:'m4q4', type:'mc', q:'¿Qué documento es clave para cumplimiento legal en datos?', options:['Política de privacidad','Menú del comedor','Agenda de la reunión','Hoja de Excel sin formato'], correct:0, explain:'Política de privacidad documenta bases y responsabilidades.'},
+    {id:'m4q5', type:'text', q:'Escribe una frase corta por qué la auditoría es importante.', keywords:['cumplim','transpar','seguridad','confianza','responsab'], explain:'La auditoría asegura cumplimiento y confianza.'}
+  ]
+};
+
+/* Charts */
+let overallChart = null, competenceChart = null;
+function initCharts(){
+  const ctx = document.getElementById('overallChart').getContext('2d');
+  const overall = computeOverall();
+  if(overallChart) overallChart.destroy();
+  overallChart = new Chart(ctx, {
+    type:'doughnut',
+    data:{ labels:['Completado','Resto'], datasets:[{ data:[overall,100-overall], backgroundColor:[getGradient(ctx,'#C4B5FD','#A78BFA'),'rgba(255,255,255,0.03)'] }]},
+    options:{ cutout:'68%', plugins:{ legend:{display:false} } }
+  });
+  document.getElementById('overallText').innerText = `Progreso general: ${overall}%`;
+
+  const ctx2 = document.getElementById('competenceChart').getContext('2d');
+  if(competenceChart) competenceChart.destroy();
+  competenceChart = new Chart(ctx2, {
+    type:'bar',
+    data:{ labels:['Ética','Privacidad','Auditoría','Gestión de Sesgos'], datasets:[{ data: appState.competenceData, backgroundColor:['#A78BFA','#C4B5FD','#DAD1FF','#EDE9FF'], borderRadius:6, barThickness:16 }]},
+    options:{ indexAxis:'y', plugins:{ legend:{display:false} }, scales:{ x:{ max:100, ticks:{ color:'rgba(245,245,247,0.9)'} }, y:{ ticks:{ color:'rgba(245,245,247,0.95)'} } } }
+  });
+}
+function updateCharts(){
+  if(overallChart){
+    const overall = computeOverall();
+    overallChart.data.datasets[0].data = [overall,100-overall];
+    overallChart.update();
+    document.getElementById('overallText').innerText = `Progreso general: ${overall}%`;
+  }
+  if(competenceChart){
+    competenceChart.data.datasets[0].data = appState.competenceData;
+    competenceChart.update();
+  }
+}
+function computeOverall(){ const p = appState.moduleProgress; const vals = [p.modulo1,p.modulo2,p.modulo3,p.modulo4]; return Math.round(vals.reduce((a,b)=>a+b,0)/vals.length); }
+function getGradient(ctx,c1,c2){ const g = ctx.createLinearGradient(0,0,300,0); g.addColorStop(0,c1); g.addColorStop(1,c2); return g; }
+
+/* UI & app init */
+const views = ['landing-view','login-view','dashboard-view'];
+function navigate(view){
+  views.forEach(v=>document.getElementById(v).style.display='none');
+  document.getElementById(view).style.display='flex';
+  if(view==='dashboard-view') onEnterDashboard();
+}
+
+/* Initialization on DOM ready */
+document.addEventListener('DOMContentLoaded', ()=>{
+  // apply session prefs
+  const prefs = loadPrefs();
+  applyPrefsToUI(prefs);
+
+  // login forms (two forms for different places)
+  const loginForms = [document.getElementById('loginForm'), document.getElementById('loginFormAlt')];
+  loginForms.forEach(f=>{
+    if(!f) return;
+    f.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      // use whichever inputs exist in that form
+      const userInput = f.querySelector('input[type="email"]');
+      const passInput = f.querySelector('input[type="password"]');
+      const u = userInput ? userInput.value.trim() : '';
+      const p = passInput ? passInput.value.trim() : '';
+      if(u && p){
+        appState.user.email = u;
+        appState.user.name = u.split('@')[0];
+        saveAppState();
+        document.getElementById('display-name').innerText = appState.user.name;
+        document.getElementById('profile-name').innerText = appState.user.name;
+        document.getElementById('profile-email').innerText = appState.user.email;
+        navigate('dashboard-view');
+      } else {
+        alert('Ingresa correo y contraseña.');
+      }
+    });
+  });
+
+  // nav buttons
+  document.querySelectorAll('.nav-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> {
+      document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      showSection(btn.dataset.target);
+    });
+  });
+
+  // diagnostic submit
+  const diagForm = document.getElementById('diagnostic-form');
+  diagForm.addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const vals = [1,2,3,4,5].map(i => {
+      const v = document.querySelector(`input[name="q${i}"]:checked`);
+      return v ? parseInt(v.value) : 1;
+    });
+    const score = Math.round((vals.reduce((a,b)=>a+b,0)/(4*5))*100);
+    document.getElementById('score-output').innerText = `Puntaje diagnóstico: ${score}%`;
+    document.getElementById('diagnostic-results').style.display='block';
+    appState.competenceData = appState.competenceData.map((c,i)=> Math.min(100, c + Math.round(score/40)));
+    saveAppState();
+    updateCharts();
+    diagForm.reset();
+  });
+
+  // initial UI render
+  renderModulesList();
+  initCharts();
+  updateCharts();
+});
+
+/* sections helper */
+const sections = ['dashboard-overview','modules-section','diagnostic-section','profile-section','assistant-section'];
+function showSection(id){
+  sections.forEach(s=>{
+    const el = document.getElementById(s);
+    if(el) el.style.display = (s===id ? 'block' : 'none');
+  });
+  const link = document.querySelector(`.nav-btn[data-target="${id}"]`);
+  document.getElementById('content-title').innerText = link ? link.innerText : 'Dashboard';
+  document.getElementById('content-subtitle').innerText = (id==='dashboard-overview') ? 'Resumen' : (link ? link.innerText + ' - contenido interactivo' : '');
+}
+
+/* dashboard entry */
+function onEnterDashboard(){
+  document.getElementById('display-name').innerText = appState.user.name;
+  document.getElementById('profile-name').innerText = appState.user.name;
+  document.getElementById('profile-email').innerText = appState.user.email;
+  renderModulesList();
+  initCharts();
+  updateCharts();
+  showSection('dashboard-overview');
+}
+
+/* modules list rendering */
+function renderModulesList(){
+  const cont = document.getElementById('modules-list'); cont.innerHTML='';
+  const metas = [
+    {id:'modulo1', title:'Fundamentos IA en RRHH'},
+    {id:'modulo2', title:'Ética de Datos y Privacidad'},
+    {id:'modulo3', title:'Modelos Predictivos y Sesgos'},
+    {id:'modulo4', title:'Auditoría y Cumplimiento'}
+  ];
+  metas.forEach(m=>{
+    const el = document.createElement('div'); el.className='module-item';
+    el.innerHTML = `<div><strong>${m.title}</strong><div class="small-muted">${appState.moduleProgress[m.id]===100?'Completado':appState.moduleProgress[m.id]+'% - '+(appState.moduleProgress[m.id]>0?'En curso':'Pendiente')}</div></div><div style="text-align:right"><strong style="color:var(--accent1)">${appState.moduleProgress[m.id]}%</strong></div>`;
+    el.onclick = ()=> selectModule(m.id);
+    cont.appendChild(el);
+  });
+}
+
+/* select module & render questions */
+let currentModule = null;
+function selectModule(moduleId){
+  currentModule = moduleId;
+  const titleMap = {
+    modulo1:'Fundamentos de la IA en RRHH',
+    modulo2:'Ética de Datos y Privacidad',
+    modulo3:'Modelos Predictivos y Sesgos',
+    modulo4:'Auditoría y Cumplimiento'
+  };
+  document.getElementById('module-title').innerText = titleMap[moduleId] || moduleId;
+  document.getElementById('module-desc').innerText = 'Contesta las 5 preguntas: mezcla de selección múltiple y abiertas. Tus respuestas correctas actualizarán el progreso.';
+  document.getElementById('moduleProgressText').innerText = appState.moduleProgress[moduleId] + '%';
+  renderModuleQuestions(moduleId);
+  showSection('modules-section');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderModuleQuestions(moduleId){
+  const qlist = moduleQuestions[moduleId] || [];
+  const container = document.getElementById('questions-list'); container.innerHTML='';
+  qlist.forEach(q=>{
+    const block = document.createElement('div'); block.className='question'; block.id = 'block-'+q.id;
+    const answeredMap = appState.answered[moduleId] || {};
+    const already = answeredMap[q.id];
+    let inner = `<strong>${q.q}</strong>`;
+    if(q.type==='mc'){
+      q.options.forEach((opt, i) => {
+        const disabled = already ? 'disabled' : '';
+        inner += `<label style="display:block;margin-top:8px"><input type="radio" name="${q.id}" value="${i}" ${disabled}> ${opt}</label>`;
+      });
+      inner += `<div class="q-actions"><button class="btn" onclick="checkMC('${moduleId}','${q.id}')">Comprobar</button><div id="fb-${q.id}" style="margin-left:8px"></div></div>`;
+    } else {
+      const disabledAttr = already ? 'disabled' : '';
+      const val = already && already.value ? (already.value) : '';
+      inner += `<textarea id="ta-${q.id}" ${disabledAttr} placeholder="Escribe tu respuesta..." rows="2">${val}</textarea><div class="q-actions"><button class="btn" onclick="checkText('${moduleId}','${q.id}')">Comprobar</button><div id="fb-${q.id}" style="margin-left:8px"></div></div>`;
+    }
+    inner += `<div id="ex-${q.id}" class="small-muted" style="margin-top:10px;">${already && already.correct ? '✅ Respondida correctamente' : (already ? '❌ Respondida (incorrecta)' : '')}</div>`;
+    block.innerHTML = inner;
+    if(already){
+      block.style.opacity = 0.85;
+      const ta = block.querySelector('textarea'); if(ta) ta.disabled = true;
+      const radios = block.querySelectorAll('input[type=radio]'); radios.forEach(r=>r.disabled = true);
+    }
+    container.appendChild(block);
+  });
+}
+
+/* answer checking */
+function checkMC(moduleId, qid){
+  const q = moduleQuestions[moduleId].find(x=>x.id===qid);
+  if(!q) return;
+  const sel = document.querySelector(`input[name="${qid}"]:checked`);
+  const fb = document.getElementById('fb-'+qid);
+  const ex = document.getElementById('ex-'+qid);
+  if(!sel){ fb.innerText = 'Selecciona una opción'; return; }
+  const val = parseInt(sel.value);
+  if(val === q.correct){
+    fb.innerText = '✅ Correcto';
+    ex.innerText = q.explain;
+    markAnswered(moduleId,qid,true);
+  } else {
+    fb.innerText = '❌ Incorrecto';
+    ex.innerText = q.explain;
+    markAnswered(moduleId,qid,false);
+  }
+}
+function checkText(moduleId, qid){
+  const q = moduleQuestions[moduleId].find(x=>x.id===qid);
+  if(!q) return;
+  const ta = document.getElementById('ta-'+qid);
+  const fb = document.getElementById('fb-'+qid);
+  const ex = document.getElementById('ex-'+qid);
+  const text = (ta.value || '').toLowerCase().trim();
+  if(!text){ fb.innerText = 'Escribe tu respuesta'; return; }
+  const matched = q.keywords.some(k => text.includes(k.toLowerCase()));
+  if(matched){
+    fb.innerText = '✅ Correcto';
+    ex.innerText = q.explain;
+    markAnswered(moduleId,qid,true, text);
+  } else {
+    fb.innerText = '❌ Incorrecto';
+    ex.innerText = q.explain;
+    markAnswered(moduleId,qid,false, text);
+  }
+}
+
+/* mark answer, update progress, persist */
+function markAnswered(moduleId,qid,correct,value){
+  if(appState.answered[moduleId][qid]){
+    appState.answered[moduleId][qid].value = value || appState.answered[moduleId][qid].value;
+    saveAppState(); renderModuleQuestions(moduleId); updateActiveModuleUI(); return;
+  }
+  appState.answered[moduleId][qid] = { correct: !!correct, value: value || null, timestamp: Date.now() };
+  if(correct){
+    appState.moduleProgress[moduleId] = Math.min(100, (appState.moduleProgress[moduleId] || 0) + 20);
+    if(moduleId==='modulo1') appState.competenceData[0] = Math.min(100, appState.competenceData[0] + 6);
+    if(moduleId==='modulo2') appState.competenceData[1] = Math.min(100, appState.competenceData[1] + 8);
+    if(moduleId==='modulo3') appState.competenceData[3] = Math.min(100, appState.competenceData[3] + 7);
+    if(moduleId==='modulo4') appState.competenceData[2] = Math.min(100, appState.competenceData[2] + 7);
+  }
+  saveAppState();
+  renderModuleQuestions(moduleId);
+  renderModulesList();
+  updateCharts();
+  updateActiveModuleUI();
+}
+
+/* UI updates & resets */
+function updateActiveModuleUI(){ if(currentModule){ document.getElementById('moduleProgressText').innerText = appState.moduleProgress[currentModule] + '%'; document.getElementById('active-module-progress').innerText = appState.moduleProgress[currentModule] + '%'; } }
+function resetModuleProgress(moduleId){ if(!moduleId) return; if(!confirm('Reiniciar progreso del módulo (local)?')) return; appState.answered[moduleId] = {}; appState.moduleProgress[moduleId] = 0; saveAppState(); renderModuleQuestions(moduleId); renderModulesList(); updateCharts(); updateActiveModuleUI(); }
+function resetAll(){ if(!confirm('Reiniciar TODO el estado local?')) return; appState = JSON.parse(JSON.stringify(defaultState)); saveAppState(); renderModulesList(); renderModuleQuestions(currentModule || 'modulo1'); updateCharts(); alert('Estado reiniciado localmente.'); }
+
+/* profile editing */
+function editProfile(){ document.getElementById('profile-edit').style.display='block'; document.getElementById('edit-name').value = appState.user.name; document.getElementById('edit-email').value = appState.user.email; document.getElementById('edit-dept').value = appState.user.dept; document.getElementById('edit-access').value = appState.user.access; }
+function saveProfile(){ appState.user.name = document.getElementById('edit-name').value || appState.user.name; appState.user.email = document.getElementById('edit-email').value || appState.user.email; appState.user.dept = document.getElementById('edit-dept').value || appState.user.dept; appState.user.access = document.getElementById('edit-access').value || appState.user.access; saveAppState(); document.getElementById('profile-name').innerText = appState.user.name; document.getElementById('profile-email').innerText = appState.user.email; document.getElementById('display-name').innerText = appState.user.name; document.getElementById('profile-edit').style.display='none'; alert('Perfil guardado (local).'); }
+function cancelEdit(){ document.getElementById('profile-edit').style.display='none'; }
+
+/* mini assistant */
+const aiKB = { 'sesgo':'Revisa subgrupos y métricas de fairness (Módulo 3).','privacidad':'Minimiza datos y solicita consentimiento (Módulo 2).','fundamentos':'La IA apoya decisiones, no las reemplaza (Módulo 1).','auditoría':'Registra logs y versiones para trazabilidad (Módulo 4).','default':'Puedo sugerir un módulo o mostrar preguntas relacionadas.' };
+function getAiResponse(msg){ const lower = msg.toLowerCase(); for(const k in aiKB) if(lower.includes(k)) return aiKB[k]; return aiKB.default; }
+function miniSend(){ const v = document.getElementById('mini-input'); if(!v.value.trim()) return; const msgs = document.getElementById('mini-messages'); const u = document.createElement('div'); u.className='msg user'; u.innerText = v.value; msgs.appendChild(u); const r = document.createElement('div'); r.className='msg ai'; setTimeout(()=>{ r.innerText = getAiResponse(v.value); msgs.appendChild(r); msgs.scrollTop = msgs.scrollHeight; },700); v.value=''; msgs.scrollTop = msgs.scrollHeight; }
+function sendChatMessage(){ const v = document.getElementById('ai-input'); if(!v.value.trim()) return; const msgs = document.getElementById('messages'); const u = document.createElement('div'); u.className='msg user'; u.innerText = v.value; msgs.appendChild(u); setTimeout(()=>{ const r = document.createElement('div'); r.className='msg ai'; r.innerText = getAiResponse(v.value); msgs.appendChild(r); msgs.scrollTop = msgs.scrollHeight; },900); v.value=''; }
+
+/* logout */
+function logout(){ navigate('login-view'); document.getElementById('loginForm').reset(); document.getElementById('loginFormAlt').reset(); }
+
+/* i18n minimal helper (for some module titles if needed) */
+function getI18n(key){
+  const prefs = loadPrefs();
+  const lang = prefs.lang || 'es';
+  const dict = { es: { m1:'Fundamentos IA en RRHH', m2:'Ética de Datos y Privacidad', m3:'Modelos Predictivos y Sesgos', m4:'Auditoría y Cumplimiento' }, en:{ m1:'AI Fundamentals in HR', m2:'Data Ethics & Privacy', m3:'Predictive Models & Bias', m4:'Audit & Compliance' } };
+  return (dict[lang] && dict[lang][key]) ? dict[lang][key] : null;
+}
+
+/* Expose some functions for console testing */
+window.openSettings = openSettings;
+window.closeSettings = closeSettings;
+window.selectModule = selectModule;
+window.resetModuleProgress = resetModuleProgress;
+window.resetAll = resetAll;
+
+</script>
+</body>
+</html>

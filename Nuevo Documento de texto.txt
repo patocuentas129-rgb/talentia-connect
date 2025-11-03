@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TalentIA Connect</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;font-family:"Poppins",sans-serif;}
+  body{background:linear-gradient(135deg,#0b0b24,#16113a,#062045);color:#fff;min-height:100vh;}
+
+  .hidden{display:none!important;}
+  .center{display:flex;justify-content:center;align-items:center;height:100vh;flex-direction:column;text-align:center;}
+
+  #lobby h1{font-size:3rem;color:#b397ff;text-shadow:0 0 10px #8f79ff;}
+  #lobby p{margin:15px 0;font-size:1.2rem;color:#b9b9d8;}
+  #lobby button{padding:12px 30px;border:none;border-radius:10px;background:linear-gradient(90deg,#8f79ff,#46d6ff);color:#fff;font-size:1rem;cursor:pointer;transition:.3s;}
+  #lobby button:hover{transform:scale(1.05);background:linear-gradient(90deg,#a792ff,#5ae3ff);}
+
+  .login-container{background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);border-radius:20px;padding:40px;box-shadow:0 0 25px rgba(0,0,0,.4);width:400px;}
+  .login-container h2{color:#a58bff;margin-bottom:10px;}
+  .login-container input{width:100%;padding:12px;margin:10px 0;border:none;border-radius:10px;background:rgba(255,255,255,0.1);color:#fff;}
+  .login-container button{width:100%;padding:12px;border:none;border-radius:10px;background:linear-gradient(90deg,#7b66ff,#41d5ff);color:#fff;font-weight:600;cursor:pointer;transition:.3s;}
+  .login-container button:hover{transform:scale(1.05);background:linear-gradient(90deg,#917cff,#4ae7ff);}
+
+  #dashboard{display:none;height:100vh;}
+  .dashboard{display:flex;height:100%;}
+  .sidebar{width:250px;background:rgba(255,255,255,0.05);backdrop-filter:blur(15px);padding:20px;display:flex;flex-direction:column;justify-content:space-between;}
+  .sidebar h2{color:#a58bff;}
+  .sidebar button{background:none;border:none;color:#fff;text-align:left;margin:10px 0;font-size:15px;cursor:pointer;transition:.3s;}
+  .sidebar button:hover{color:#46d6ff;}
+  .content{flex:1;padding:40px;overflow-y:auto;}
+  .module-list button{display:block;width:100%;background:rgba(255,255,255,0.05);border:none;color:white;padding:12px;margin:8px 0;border-radius:8px;cursor:pointer;transition:.3s;}
+  .module-list button:hover{background:rgba(255,255,255,0.15);}
+  .question{background:rgba(255,255,255,0.05);padding:12px;border-radius:10px;margin-top:10px;}
+  .profile input{background:rgba(255,255,255,0.1);color:white;border:none;padding:8px;width:100%;border-radius:8px;margin-bottom:10px;}
+  textarea{width:100%;border:none;border-radius:8px;padding:8px;background:rgba(255,255,255,0.1);color:white;margin-top:5px;}
+</style>
+</head>
+<body>
+
+<div id="lobby" class="center">
+  <h1>TalentIA Connect</h1>
+  <p>Explora la plataforma de aprendizaje ético en IA para RRHH</p>
+  <button onclick="goLogin()">Iniciar sesión</button>
+</div>
+
+<div id="login" class="center hidden">
+  <div class="login-container">
+    <h2>TalentIA Connect</h2>
+    <p>Accede a tu panel de RRHH para cursos y diagnósticos sobre IA ética.</p>
+    <input type="email" id="email" placeholder="Correo electrónico" required>
+    <input type="password" id="password" placeholder="Contraseña (demo)">
+    <button onclick="login()">Acceder a la Plataforma</button>
+  </div>
+</div>
+
+<div id="dashboard">
+  <div class="dashboard">
+    <div class="sidebar">
+      <div>
+        <h2>TalentIA</h2>
+        <button onclick="showSection('inicio')">Inicio / Dashboard</button>
+        <button onclick="showSection('modulos')">Módulos de Aprendizaje</button>
+        <button onclick="showSection('diagnostico')">Diagnóstico de Madurez</button>
+        <button onclick="showSection('perfil')">Mi Perfil</button>
+      </div>
+      <div>
+        <p id="usuarioLabel"></p>
+        <button onclick="logout()">Cerrar sesión</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div id="inicio">
+        <h2>Bienvenido a TalentIA Connect</h2>
+        <p>Selecciona un módulo para comenzar tu aprendizaje sobre IA ética en RRHH.</p>
+      </div>
+      <div id="modulos" class="hidden">
+        <h2>Módulos de Aprendizaje</h2>
+        <div style="display:grid;grid-template-columns:250px 1fr;gap:30px;">
+          <div class="module-list" id="listaModulos"></div>
+          <div id="preguntas"></div>
+        </div>
+      </div>
+      <div id="diagnostico" class="hidden">
+        <h2>Diagnóstico de Madurez</h2>
+        <p>Herramienta próximamente disponible.</p>
+      </div>
+      <div id="perfil" class="hidden profile">
+        <h2>Mi Perfil</h2>
+        <input id="nombrePerfil" placeholder="Nombre">
+        <input id="correoPerfil" placeholder="Correo">
+        <input id="cargoPerfil" placeholder="Cargo / Rol">
+        <button onclick="guardarPerfil()">Guardar cambios</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const modulos = {
+  "Fundamentos de la IA en RRHH": [
+    "¿Qué ventaja ofrece la IA en procesos de selección?",
+    "¿Cuál es un riesgo ético del uso de IA en RRHH?",
+    "¿Qué significa la transparencia algorítmica?",
+    "Describe un ejemplo positivo del uso de IA en RRHH.",
+    "¿Cómo asegurar decisiones justas en IA de RRHH?"
+  ],
+  "Ética de Datos y Privacidad": [
+    "¿Qué es la minimización de datos?",
+    "¿Qué ley protege los datos personales en Chile?",
+    "¿Por qué es importante el consentimiento informado?",
+    "Ejemplo de uso ético de datos de empleados.",
+    "¿Cómo mitigar sesgos en bases de datos?"
+  ],
+  "Modelos Predictivos y Sesgos": [
+    "¿Qué es un sesgo algorítmico?",
+    "¿Cómo se detectan sesgos en IA?",
+    "¿Por qué el sesgo afecta la equidad laboral?",
+    "Ejemplo de modelo justo en RRHH.",
+    "¿Qué medidas reducen los sesgos?"
+  ],
+  "Auditoría y Cumplimiento": [
+    "¿Qué es una auditoría algorítmica?",
+    "¿Por qué es clave documentar modelos?",
+    "¿Qué organismo puede supervisar la IA ética?",
+    "Ejemplo de control interno de IA.",
+    "¿Cómo mantener trazabilidad en IA?"
+  ],
+  "Implementación Responsable de IA": [
+    "¿Qué implica la implementación responsable de IA?",
+    "¿Cómo se gestiona el impacto ético de IA en RRHH?",
+    "¿Qué rol tiene la formación del personal?",
+    "Ejemplo de uso responsable en reclutamiento.",
+    "¿Qué principios guían una IA ética en RRHH?"
+  ]
+};
+
+function goLogin(){
+  document.getElementById("lobby").classList.add("hidden");
+  document.getElementById("login").classList.remove("hidden");
+}
+function login(){
+  const email=document.getElementById("email").value;
+  if(!email)return alert("Ingresa un correo válido.");
+  localStorage.setItem("usuario",email);
+  document.getElementById("lobby").classList.add("hidden");
+  document.getElementById("login").classList.add("hidden");
+  document.getElementById("dashboard").style.display="block";
+  document.getElementById("usuarioLabel").textContent="Usuario: "+email;
+  renderModulos();
+  cargarPerfil();
+}
+function logout(){
+  localStorage.clear();
+  document.getElementById("dashboard").style.display="none";
+  document.getElementById("lobby").classList.remove("hidden");
+}
+function showSection(id){
+  ["inicio","modulos","diagnostico","perfil"].forEach(s=>{
+    document.getElementById(s).classList.add("hidden");
+  });
+  document.getElementById(id).classList.remove("hidden");
+}
+function renderModulos(){
+  const lista=document.getElementById("listaModulos");
+  lista.innerHTML="";
+  Object.keys(modulos).forEach(m=>{
+    const btn=document.createElement("button");
+    btn.textContent=m;
+    btn.onclick=()=>mostrarPreguntas(m);
+    lista.appendChild(btn);
+  });
+}
+function mostrarPreguntas(nombre){
+  const cont=document.getElementById("preguntas");
+  cont.innerHTML=`<h3>${nombre}</h3>`;
+  modulos[nombre].forEach((q,i)=>{
+    const div=document.createElement("div");
+    div.className="question";
+    div.innerHTML=`<p><b>${i+1}.</b> ${q}</p><textarea rows="2"></textarea>`;
+    cont.appendChild(div);
+  });
+}
+function guardarPerfil(){
+  const perfil={
+    nombre:document.getElementById("nombrePerfil").value,
+    correo:document.getElementById("correoPerfil").value,
+    cargo:document.getElementById("cargoPerfil").value
+  };
+  localStorage.setItem("perfil",JSON.stringify(perfil));
+  alert("Perfil actualizado correctamente.");
+}
+function cargarPerfil(){
+  const perfil=JSON.parse(localStorage.getItem("perfil"));
+  if(perfil){
+    document.getElementById("nombrePerfil").value=perfil.nombre;
+    document.getElementById("correoPerfil").value=perfil.correo;
+    document.getElementById("cargoPerfil").value=perfil.cargo;
+  }
+}
+window.onload=function(){
+  const user=localStorage.getItem("usuario");
+  if(user){
+    document.getElementById("lobby").classList.add("hidden");
+    document.getElementById("login").classList.add("hidden");
+    document.getElementById("dashboard").style.display="block";
+    document.getElementById("usuarioLabel").textContent="Usuario: "+user;
+    renderModulos();
+    cargarPerfil();
+  }
+};
+</script>
+</body>
+</html>
